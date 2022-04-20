@@ -3,9 +3,11 @@
 ```
 cd edurisk\mern\server
 npm install
+npm start
 
 cd edurisk\mern\client
 npm install
+npm start
 ```
 
 Add a config.env file in the server directory with the following layout:
