@@ -10,6 +10,9 @@ import Edit from "./components/edit";
 import Create from "./components/create";
 import Register from "./components/register";
 import Login from "./components/login";
+import Questionnaire from "./components/questionnaire";
+import CreateQuestion from "./components/createQuestion";
+import Questions from "./components/questions";
 
 const App = () => {
   return (
@@ -22,6 +25,9 @@ const App = () => {
         <Route path="/create" element={<Create />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/questionnaire" element={<Questionnaire />} />
+        <Route path="/createQuestion" element={<CreateQuestion />} />
+        <Route path="/questions" element={<Questions />} />
       </Routes>
       </div>
     </div>
