@@ -94,7 +94,7 @@ recordRoutes.route("/question").get(function (req, res) {
 });
 
 // This section will help you create a new question.
-  recordRoutes.route("/question/create").post(function (req, response) {
+recordRoutes.route("/question/create").post(function (req, response) {
 
     const {title, description, answerType, followUp} = req.body;
 
@@ -122,6 +122,17 @@ recordRoutes.route("/question").get(function (req, res) {
       }
     });
   });
+
+// This section will help you delete a question
+recordRoutes.route("/question/:id").delete((req, response) => {
+  let db_connect = dbo.getDb();
+  let myquery = {_id: ObjectId(req.params.id)};
+  db_connect.collection("questions").deleteOne(myquery, function (err, obj) {
+    if (err) throw err;
+    console.log("1 question deleted");
+    response.json(obj);
+  });
+});
 
 // This section will help you log in an existing user.
   recordRoutes.route("/user/login").post(function (req, response) {
@@ -156,15 +167,6 @@ recordRoutes.route("/question").get(function (req, res) {
         });
   });
 
-// This section will help you delete a record
-  recordRoutes.route("/:id").delete((req, response) => {
-    let db_connect = dbo.getDb();
-    let myquery = {_id: ObjectId(req.params.id)};
-    db_connect.collection("records").deleteOne(myquery, function (err, obj) {
-      if (err) throw err;
-      console.log("1 document deleted");
-      response.json(obj);
-    });
-  });
+
 
 module.exports = recordRoutes;
