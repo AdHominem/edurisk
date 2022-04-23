@@ -12,6 +12,18 @@ export default function UpdateQuestion(props) {
         followUp: ""
     });
 
+    // Update the local state with the question to update
+    useEffect(() => {
+        updateQuestion({
+            title: props.question.title,
+            description: props.question.description,
+            answerType: props.question.answerType,
+            followUp: props.question.followUp,
+        })
+    }, [props.question.title, props.question.description, props.question.answerType, props.question.followUp])
+
+    console.log(question);
+
     // These methods will update the state properties. It's necessary because of nested state
     function updateQuestion(value) {
         return setQuestion((prev) => {
