@@ -104,6 +104,7 @@ export default function Questions() {
                 <tbody>
                     {questionList()}
                     <UpdateQuestion question={{title: "New", description: "Lol", answerType: "binary", followUp: undefined}} questions={questions} onSubmit={updateQuestion}/>
+                {/*TODO: Switch between UpdateQuestion and Question component depending on whether Edit was clicked*/}
                 </tbody>
             </table>
         </div>
