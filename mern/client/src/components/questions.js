@@ -2,28 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {useNavigate} from "react-router";
 import UpdateQuestion from "./updateQuestion";
+import Question from "./question";
+import NewQuestion from "./newQuestion";
 
-
-function Question(props) {
-    return (
-        <tr>
-            <td>{props.question.title}</td>
-            <td>{props.question.description}</td>
-            <td>{props.question.answerType}</td>
-            <td>{props.question.followUp}</td>
-            <td>
-                <button className="btn btn-link" onClick={props.handleClick}>Bearbeiten</button>
-                <button className="btn btn-link"
-                        onClick={() => {
-                            props.deleteQuestion(props.question._id);
-                        }}
-                >
-                    Löschen
-                </button>
-            </td>
-        </tr>
-    );
-}
 
 export default function Questions() {
     const [questions, setQuestions] = useState([]);
@@ -63,6 +44,8 @@ export default function Questions() {
             return (
                 <Question
                     question={question}
+                    questions={questions}
+                    updateQuestion={updateQuestion}
                     deleteQuestion={() => deleteQuestion(question._id)}
                     key={question._id}
                 />
@@ -73,12 +56,33 @@ export default function Questions() {
     // This function will handle the submission.
     async function updateQuestion(updatedQuestion) {
 
-        await fetch("http://localhost:5000/question/create", {
+        console.log("Updating...");
+        console.log(updatedQuestion);
+        console.log(`http://localhost:5000/question/update/${updatedQuestion._id}`);
+        await fetch(`http://localhost:5000/question/update/${updatedQuestion._id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(updatedQuestion),
+        })
+            .catch(error => {
+                window.alert(error);
+                return;
+            });
+
+        await getQuestions();
+    }
+
+    // This function will handle the submission.
+    async function createQuestion(newQuestion) {
+
+        await fetch("http://localhost:5000/question/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newQuestion),
         })
             .catch(error => {
                 window.alert(error);
@@ -103,8 +107,10 @@ export default function Questions() {
                 </thead>
                 <tbody>
                     {questionList()}
-                    <UpdateQuestion question={{title: "New", description: "Lol", answerType: "binary", followUp: undefined}} questions={questions} onSubmit={updateQuestion}/>
-                {/*TODO: Switch between UpdateQuestion and Question component depending on whether Edit was clicked*/}
+                    <NewQuestion
+                        createQuestion={createQuestion}
+                        questions={questions}
+                    />
                 </tbody>
             </table>
         </div>

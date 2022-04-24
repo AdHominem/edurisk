@@ -123,6 +123,34 @@ recordRoutes.route("/question/create").post(function (req, response) {
     });
   });
 
+// This section will help you update a question by id.
+recordRoutes.route("/question/update/:id").post(function (req, response) {
+
+  const {id, title, description, answerType, followUp} = req.body;
+
+  if (!title || !description || !answerType) {
+    response.status(400).send({message: "Frage darf keine leeren Felder enthalten."})
+  }
+
+  let db_connect = dbo.getDb();
+  let oldQuestion = {_id: ObjectId(req.params.id)};
+  let newValues = {
+    $set: {
+      title: title,
+      description: description,
+      answerType: answerType,
+      followUp: followUp
+    }
+  };
+  db_connect
+      .collection("questions")
+      .updateOne(oldQuestion, newValues, function (err, res) {
+        if (err) throw err;
+        console.log("1 question updated");
+        response.json(res);
+      });
+});
+
 // This section will help you delete a question
 recordRoutes.route("/question/:id").delete((req, response) => {
   let db_connect = dbo.getDb();
@@ -147,25 +175,7 @@ recordRoutes.route("/question/:id").delete((req, response) => {
     });
   });
 
-// This section will help you update a record by id.
-  recordRoutes.route("/update/:id").post(function (req, response) {
-    let db_connect = dbo.getDb();
-    let myquery = {_id: ObjectId(req.params.id)};
-    let newvalues = {
-      $set: {
-        name: req.body.name,
-        position: req.body.position,
-        level: req.body.level,
-      },
-    };
-    db_connect
-        .collection("records")
-        .updateOne(myquery, newvalues, function (err, res) {
-          if (err) throw err;
-          console.log("1 document updated");
-          response.json(res);
-        });
-  });
+
 
 
 
