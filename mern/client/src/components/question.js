@@ -16,8 +16,6 @@ export default function Question(props) {
     const questions = 1;
     const onSubmit = 1;
 
-    console.log(isEdited);
-
     function handleClick() {
         setIsEdited(true);
     }

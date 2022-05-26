@@ -1,65 +1,144 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
-import Card from 'react-bootstrap/Card';
-import {Button} from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import {Link, useParams} from "react-router-dom";
+import {useNavigate} from "react-router";
+import UpdateQuestion from "./updateQuestion";
+import Question from "./question";
+import NewQuestion from "./newQuestion";
+
 
 export default function Questionnaire() {
-    const [form, setForm] = useState({
-        name: "",
-        position: "",
-        level: "",
+    const [questions, setQuestions] = useState([]);
+    const [questionnaire, setQuestionnaire] = useState({
+        title: "",
+        description: "",
+        questions: []
     });
-    const navigate = useNavigate();
 
-    // These methods will update the state properties.
-    function updateForm(value) {
-        return setForm((prev) => {
-            return { ...prev, ...value };
+    // This method fetches the questions from the database.
+    async function getQuestions() {
+        const response = await fetch(`http://localhost:5000/question`);
+
+        if (!response.ok) {
+            const message = `An error occured: ${response.statusText}`;
+            window.alert(message);
+            return;
+        }
+
+        const questions = await response.json();
+        setQuestions(questions);
+    }
+
+    let { id } = useParams();
+
+    async function getQuestionnaire() {
+        const response = await fetch(`http://localhost:5000/questionnaire/${id}`);
+
+        if (!response.ok) {
+            const message = `An error occured: ${response.statusText}`;
+            window.alert(message);
+            return;
+        }
+
+        const questionnaire = await response.json();
+        setQuestionnaire(questionnaire);
+    }
+
+    // Questions are being pulled from DB after rendering DOM
+    useEffect(() => {
+        getQuestions();
+        getQuestionnaire();
+        return;
+    }, []);
+
+    // This method will delete a question
+    async function deleteQuestion(id) {
+        await fetch(`http://localhost:5000/question/${id}`, {
+            method: "DELETE"
+        });
+
+        await getQuestions();
+    }
+
+    // This method will map out the questions on the table
+    function questionList() {
+        return questionnaire.questions && questionnaire.questions.map((question) => {
+            return (
+                <Question
+                    question={question}
+                    questions={questions}
+                    updateQuestion={updateQuestion}
+                    deleteQuestion={() => deleteQuestion(question._id)}
+                    key={question._id}
+                />
+            );
         });
     }
 
     // This function will handle the submission.
-    async function onSubmit(e) {
-        e.preventDefault();
+    async function updateQuestion(updatedQuestion) {
 
-        // When a post request is sent to the create url, we'll add a new record to the database.
-        const newPerson = { ...form };
-
-        await fetch("http://localhost:5000/record/add", {
+        console.log("Updating...");
+        console.log(updatedQuestion);
+        console.log(`http://localhost:5000/question/update/${updatedQuestion._id}`);
+        await fetch(`http://localhost:5000/question/update/${updatedQuestion._id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(newPerson),
+            body: JSON.stringify(updatedQuestion),
         })
             .catch(error => {
                 window.alert(error);
                 return;
             });
 
-        setForm({ name: "", position: "", level: "" });
-        navigate("/");
+        await getQuestions();
     }
 
-    const questions = [
-        1,2
-    ]
+    // This function will handle the submission.
+    async function addQuestion(newQuestion) {
 
-    // This following section will display the form that takes the input from the user.
+        await fetch(`http://localhost:5000/questionnaire/addQuestion/${questionnaire._id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                question: newQuestion,
+                questionnaire: questionnaire
+            }),
+        })
+            .catch(error => {
+                window.alert(error);
+                return;
+            });
+
+        await getQuestionnaire();
+        await getQuestions();
+    }
+
+    // This following section will display the table with the questions of individuals.
     return (
         <div>
-            <h3>Asset Management</h3>
-            <Card style={{ width: '18rem' }}>
-                <Card.Img variant="top" src="holder.js/100px180" />
-                <Card.Body>
-                    <Card.Title>Test</Card.Title>
-                    <Card.Text>
-                        Some quick example text to build on the card title and make up the bulk of
-                        the card's content.
-                    </Card.Text>
-                    <Button variant="primary">Go somewhere</Button>
-                </Card.Body>
-            </Card>
+            <h3>Fragebogen {questionnaire.title}</h3>
+            <p>{questionnaire.description}</p>
+            <table className="table table-striped" style={{marginTop: 20}}>
+                <thead>
+                <tr>
+                    <th>Titel</th>
+                    <th>Fragestellung</th>
+                    <th>Antwortmöglichkeiten</th>
+                    <th>Folgefrage</th>
+                </tr>
+                </thead>
+                <tbody>
+                {questionList()}
+                <NewQuestion
+                    createQuestion={addQuestion}
+                    questions={questions}
+                />
+                </tbody>
+            </table>
         </div>
     );
 }

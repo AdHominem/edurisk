@@ -81,6 +81,138 @@ recordRoutes.route("/user/register").post(function (req, response) {
   }
 });
 
+// This section will help you get a list of all the questionnaires.
+recordRoutes.route("/questionnaire").get(function (req, res) {
+  let db_connect = dbo.getDb();
+  db_connect
+      .collection("questionnaires")
+      .find({})
+      .toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });
+});
+
+// This section will help you create a new questionnaire.
+recordRoutes.route("/questionnaire/create").post(function (req, response) {
+
+  const {title, description} = req.body;
+
+  if (!title) {
+    response.status(400).send({message: "Fragebogen darf keinen leeren Titel enthalten."})
+  }
+
+  let db_connect = dbo.getDb();
+
+  db_connect.collection("questionnaires").findOne({title: title}, (err, question) => {
+    if (question) {
+      response.status(400).send({message: "Fragebogen mit diesem Titel existiert bereits"});
+    } else {
+      let newQuestionnaire = {
+        title: title,
+        description: description,
+        questions: []
+      };
+
+      db_connect.collection("questionnaires").insertOne(newQuestionnaire, function (err, res) {
+        if (err) throw err;
+        response.json(res);
+      });
+    }
+  });
+});
+
+// This section will help you get a single questionnaire by id
+recordRoutes.route("/questionnaire/:id").get(function (req, res) {
+  let db_connect = dbo.getDb();
+  let myquery = { _id: ObjectId( req.params.id )};
+  db_connect
+      .collection("questionnaires")
+      .findOne(myquery, function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });
+});
+
+// This section will help you delete a questionnaire
+recordRoutes.route("/questionnaire/:id").delete((req, response) => {
+  let db_connect = dbo.getDb();
+  let myquery = {_id: ObjectId(req.params.id)};
+  db_connect.collection("questionnaires").deleteOne(myquery, function (err, obj) {
+    if (err) throw err;
+    console.log("1 questionnaire deleted");
+    response.json(obj);
+  });
+});
+
+// This section will help you update a questionnaire by id.
+recordRoutes.route("/questionnaire/update/:id").post(function (req, response) {
+
+  const {id, title, description, questions} = req.body;
+
+  if (!title) {
+    response.status(400).send({message: "Fragebogen muss einen Titel haben."})
+  }
+
+  let db_connect = dbo.getDb();
+  let oldQuestionnaire = {_id: ObjectId(req.params.id)};
+  let newValues = {
+    $set: {
+      title: title,
+      description: description,
+      questions: questions
+    }
+  };
+
+  db_connect
+      .collection("questionnaires")
+      .updateOne(oldQuestionnaire, newValues, function (err, res) {
+        if (err) throw err;
+        console.log("1 questionnaire updated");
+        response.json(res);
+      });
+});
+
+// This section will help you add a new question to an existing questionnaire.
+recordRoutes.route("/questionnaire/addQuestion/:id").post(function (req, response) {
+  const {title, description, answerType, followUp} = req.body.question;
+
+  if (!title || !description || !answerType) {
+    response.status(400).send({message: "Frage darf keine leeren Felder enthalten."})
+  }
+
+  let db_connect = dbo.getDb();
+
+  db_connect.collection("questions").findOne({title: title}, (err, question) => {
+    if (question) {
+      response.status(400).send({message: "Frage mit diesem Titel existiert bereits"});
+    } else {
+      let newQuestion = {
+        title: title,
+        description: description,
+        answerType: answerType,
+        followUp: followUp
+      };
+
+      db_connect.collection("questions").insertOne(newQuestion, function (err, res) {
+        if (err) throw err;
+        console.log(res.ops[0]);
+
+        const {id, title, description, questions} = req.body.questionnaire;
+
+        db_connect
+            .collection("questionnaires")
+            .updateOne({_id: ObjectId(req.params.id)}, {$push:{"questions": res.ops[0]}}, function (err, res) {
+              if (err) throw err;
+              console.log("1 questionnaire updated");
+              response.json(res);
+            });
+      });
+    }
+  });
+
+});
+
 // This section will help you get a list of all the questions.
 recordRoutes.route("/question").get(function (req, res) {
   let db_connect = dbo.getDb("employees");
@@ -142,6 +274,7 @@ recordRoutes.route("/question/update/:id").post(function (req, response) {
       followUp: followUp
     }
   };
+
   db_connect
       .collection("questions")
       .updateOne(oldQuestion, newValues, function (err, res) {

@@ -11,6 +11,7 @@ import Create from "./components/create";
 import Register from "./components/register";
 import Login from "./components/login";
 import Questionnaire from "./components/questionnaire";
+import Questionnaires from "./components/questionnaires";
 import CreateQuestion from "./components/createQuestion";
 import Questions from "./components/questions";
 
@@ -20,12 +21,13 @@ const App = () => {
       <Navbar />
       <div style={{ margin: 20 }}>
       <Routes>
-        <Route exact path="/" element={<RecordList />} />
+        <Route exact path="/" element={<Questions />} />
         <Route path="/edit/:id" element={<Edit />} />
         <Route path="/create" element={<Create />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/questionnaire" element={<Questionnaire />} />
+        <Route path="/questionnaire/:id" element={<Questionnaire />} />
+        <Route path="/questionnaires" element={<Questionnaires />} />
         <Route path="/createQuestion" element={<CreateQuestion />} />
         <Route path="/questions" element={<Questions />} />
       </Routes>
@@ -33,5 +35,4 @@ const App = () => {
     </div>
   );
 };
-
 export default App;
