@@ -175,41 +175,40 @@ recordRoutes.route("/questionnaire/update/:id").post(function (req, response) {
 
 // This section will help you add a new question to an existing questionnaire.
 recordRoutes.route("/questionnaire/addQuestion/:id").post(function (req, response) {
-  const {title, description, answerType, followUp} = req.body.question;
+  const {title, description, answerType, followUp, asset, riskRating} = req.body.question;
+  const {questions} = req.body.questionnaire;
 
-  if (!title || !description || !answerType) {
+  if (!title || !description || !answerType || !asset || !riskRating) {
     response.status(400).send({message: "Frage darf keine leeren Felder enthalten."})
   }
 
-  let db_connect = dbo.getDb();
+  if (questions.some((question) => question.title === title)) {
+    response.status(400).send({message: "Frage mit diesem Titel existiert bereits"});
+  } else {
+    let newQuestion = {
+      title: title,
+      description: description,
+      answerType: answerType,
+      followUp: followUp,
+      asset: asset,
+      riskRating: riskRating
+    };
 
-  db_connect.collection("questions").findOne({title: title}, (err, question) => {
-    if (question) {
-      response.status(400).send({message: "Frage mit diesem Titel existiert bereits"});
-    } else {
-      let newQuestion = {
-        title: title,
-        description: description,
-        answerType: answerType,
-        followUp: followUp
-      };
+    let db_connect = dbo.getDb();
 
-      db_connect.collection("questions").insertOne(newQuestion, function (err, res) {
-        if (err) throw err;
-        console.log(res.ops[0]);
+    db_connect.collection("questions").insertOne(newQuestion, function (err, res) {
+      if (err) throw err;
+      console.log(res.ops[0]);
 
-        const {id, title, description, questions} = req.body.questionnaire;
-
-        db_connect
-            .collection("questionnaires")
-            .updateOne({_id: ObjectId(req.params.id)}, {$push:{"questions": res.ops[0]}}, function (err, res) {
-              if (err) throw err;
-              console.log("1 questionnaire updated");
-              response.json(res);
-            });
-      });
-    }
-  });
+      db_connect
+          .collection("questionnaires")
+          .updateOne({_id: ObjectId(req.params.id)}, {$push:{"questions": res.ops[0]}}, function (err, res) {
+            if (err) throw err;
+            console.log("1 questionnaire updated");
+            response.json(res);
+          });
+    });
+  }
 
 });
 
@@ -258,7 +257,7 @@ recordRoutes.route("/question/create").post(function (req, response) {
 // This section will help you update a question by id.
 recordRoutes.route("/question/update/:id").post(function (req, response) {
 
-  const {id, title, description, answerType, followUp} = req.body;
+  const {id, title, description, answerType, followUp} = req.body.question;
 
   if (!title || !description || !answerType) {
     response.status(400).send({message: "Frage darf keine leeren Felder enthalten."})
@@ -282,7 +281,10 @@ recordRoutes.route("/question/update/:id").post(function (req, response) {
         console.log("1 question updated");
         response.json(res);
       });
-});
+
+
+}
+);
 
 // This section will help you delete a question
 recordRoutes.route("/question/:id").delete((req, response) => {

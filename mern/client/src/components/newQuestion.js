@@ -9,7 +9,9 @@ export default function NewQuestion(props) {
         title: "",
         description: "",
         answerType: "",
-        followUp: ""
+        followUp: "",
+        asset: "",
+        riskRating: ""
     });
 
     // These methods will update the state properties. It's necessary because of nested state
@@ -25,7 +27,9 @@ export default function NewQuestion(props) {
             title: "",
             description: "",
             answerType: "",
-            followUp: ""
+            followUp: "",
+            asset: "",
+            riskRating: ""
         });
     }
 
@@ -49,6 +53,26 @@ export default function NewQuestion(props) {
                     id="description"
                     value={form.description}
                     onChange={(e) => updateForm({ description: e.target.value })}
+                />
+            </td>
+            <td>
+                <input
+                    type="text"
+                    placeholder="Asset"
+                    className="form-control"
+                    id="asset"
+                    value={form.asset}
+                    onChange={(e) => updateForm({ asset: e.target.value })}
+                />
+            </td>
+            <td>
+                <input
+                    type="text"
+                    placeholder="Risk Rating"
+                    className="form-control"
+                    id={form.riskRating}
+                    value={form.riskRating}
+                    onChange={(e) => updateForm({ riskRating: e.target.value })}
                 />
             </td>
             <td>

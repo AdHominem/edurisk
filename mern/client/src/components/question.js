@@ -37,6 +37,8 @@ export default function Question(props) {
             <tr>
                 <td>{props.question.title}</td>
                 <td>{props.question.description}</td>
+                <td>{props.question.asset}</td>
+                <td>{props.question.riskRating}</td>
                 <td>{props.question.answerType}</td>
                 <td>{props.question.followUp}</td>
                 <td>

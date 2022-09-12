@@ -5,7 +5,11 @@ import UpdateQuestion from "./updateQuestion";
 import Question from "./question";
 import NewQuestion from "./newQuestion";
 
-
+/**
+ * Shows a single questionnaire
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export default function Questionnaire() {
     const [questions, setQuestions] = useState([]);
     const [questionnaire, setQuestionnaire] = useState({
@@ -85,7 +89,11 @@ export default function Questionnaire() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updatedQuestion),
+            body: JSON.stringify(
+                {
+                    question: updatedQuestion,
+                    questionnaire: questionnaire
+                }),
         })
             .catch(error => {
                 window.alert(error);
@@ -120,13 +128,15 @@ export default function Questionnaire() {
     // This following section will display the table with the questions of individuals.
     return (
         <div>
-            <h3>Fragebogen {questionnaire.title}</h3>
+            <h3>Fragebogen "{questionnaire.title}"</h3>
             <p>{questionnaire.description}</p>
             <table className="table table-striped" style={{marginTop: 20}}>
                 <thead>
                 <tr>
                     <th>Titel</th>
                     <th>Fragestellung</th>
+                    <th>Asset</th>
+                    <th>Risk Rating</th>
                     <th>Antwortmöglichkeiten</th>
                     <th>Folgefrage</th>
                 </tr>

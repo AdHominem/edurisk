@@ -18,7 +18,34 @@ PORT=5000
 ```
 # FAURiscProject
 
-demo
+
+
+## Data structure
+
+Every questionnaire is a JSON object, consisting of
+- a title
+- a description
+- a list of all the questions
+- a list of all the results.
+
+Every question has
+- a title used to quickly identify a question
+- a description as the actual question text
+- an answer type (either binary or free text)
+- a follow-up question
+- an affected asset
+- a risk rating
+
+The follow-up question is conditional and only asked if the current question was answered with a "No".
+The risk rating is a number between 1 and 10 and indicates the risk associated with the asset.
+
+### Conducting the questionnaire
+
+When conducting the questionnaire, all questions are copied and each question gets one more attribute which is the answer.
+
+### The report
+
+For each questionnaire, a report can be generated which lists a matrix of all participants and all assets. Each cell in the matrix is filled with either green, yellow or red color according to the risk. This report is also exportable as an Excel sheet.
 
 ## Getting started
 
