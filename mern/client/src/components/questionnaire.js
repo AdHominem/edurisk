@@ -83,8 +83,8 @@ export default function Questionnaire() {
 
         console.log("Updating...");
         console.log(updatedQuestion);
-        console.log(`http://localhost:5000/question/update/${updatedQuestion._id}`);
-        await fetch(`http://localhost:5000/question/update/${updatedQuestion._id}`, {
+        console.log(`http://localhost:5000/questionnaire/updateQuestion/${updatedQuestion._id}`);
+        await fetch(`http://localhost:5000/questionnaire/updateQuestion/${updatedQuestion._id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -96,6 +96,7 @@ export default function Questionnaire() {
                 }),
         })
             .catch(error => {
+                console.log(error);
                 window.alert(error);
                 return;
             });

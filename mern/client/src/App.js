@@ -14,6 +14,7 @@ import Questionnaire from "./components/questionnaire";
 import Questionnaires from "./components/questionnaires";
 import CreateQuestion from "./components/createQuestion";
 import Questions from "./components/questions";
+import TakeQuestionnaire from "./components/takeQuestionnaire";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/questionnaires" element={<Questionnaires />} />
         <Route path="/createQuestion" element={<CreateQuestion />} />
         <Route path="/questions" element={<Questions />} />
+        <Route path="/questionnaire/take" element={<TakeQuestionnaire />} />
       </Routes>
       </div>
     </div>

@@ -18,7 +18,8 @@ PORT=5000
 ```
 # FAURiscProject
 
-
+Questions:
+Should the Asset be preconfigured?
 
 ## Data structure
 
@@ -26,7 +27,8 @@ Every questionnaire is a JSON object, consisting of
 - a title
 - a description
 - a list of all the questions
-- a list of all the results.
+- a list of all the results
+- a published flag to indicate that the questionnaire can be taken.
 
 Every question has
 - a title used to quickly identify a question
@@ -42,6 +44,19 @@ The risk rating is a number between 1 and 10 and indicates the risk associated w
 ### Conducting the questionnaire
 
 When conducting the questionnaire, all questions are copied and each question gets one more attribute which is the answer.
+
+The questions are served from a stack:
+
+- First Question
+- - Follow-Up Question 
+- Second Question
+
+The Stack looks like this: [Second Question, First Question] <- Head of stack
+
+1. First Question is popped: [Second Question]
+2. Answer is "No", Follow-Up Question is pushed: [Second Question, Follow-Up Question]
+3. Follow-Up Question is popped and answered: [Second Question]
+4. Second Question is popped and answered: []
 
 ### The report
 

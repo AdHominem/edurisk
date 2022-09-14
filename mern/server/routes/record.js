@@ -122,6 +122,18 @@ recordRoutes.route("/questionnaire/create").post(function (req, response) {
   });
 });
 
+// This section will help you get the published questionnaire
+recordRoutes.route("/questionnaire/take").get(function (req, res) {
+  let db_connect = dbo.getDb();
+  let myquery = { published: true };
+  db_connect
+      .collection("questionnaires")
+      .findOne(myquery, function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });
+});
+
 // This section will help you get a single questionnaire by id
 recordRoutes.route("/questionnaire/:id").get(function (req, res) {
   let db_connect = dbo.getDb();
@@ -186,6 +198,7 @@ recordRoutes.route("/questionnaire/addQuestion/:id").post(function (req, respons
     response.status(400).send({message: "Frage mit diesem Titel existiert bereits"});
   } else {
     let newQuestion = {
+      _id: new ObjectId(),
       title: title,
       description: description,
       answerType: answerType,
@@ -194,23 +207,70 @@ recordRoutes.route("/questionnaire/addQuestion/:id").post(function (req, respons
       riskRating: riskRating
     };
 
+    let newQuestions = JSON.parse(JSON.stringify(questions));
+    newQuestion
+    // TODO: Just use a questions DB! Nested State sucks
+
+    let newQuestionnaireValues = {
+      $set: {
+        title: title,
+        description: description,
+        questions: JSON.parse(JSON.stringify(questions))
+      }
+    };
+
     let db_connect = dbo.getDb();
 
-    db_connect.collection("questions").insertOne(newQuestion, function (err, res) {
-      if (err) throw err;
-      console.log(res.ops[0]);
+    db_connect
+        .collection("questionnaires")
+        .updateOne({_id: ObjectId(req.params.id)}, {$push:{"questions": newQuestion}}, function (err, res) {
+          if (err) throw err;
+          console.log("1 question added to questionnaire " + req.params.id);
+          response.json(res);
+        });
+  }
+});
 
+/**
+ * Updates a questionnaire by changing the question with the parameter ID to the supplied question
+ */
+recordRoutes.route("/questionnaire/updateQuestion/:id").post( function (req, response) {
+      const {title, description, answerType, followUp, asset, riskRating} = req.body.question;
+      const {_id, questions} = req.body.questionnaire;
+
+      if (!title || !description || !answerType || !asset || !riskRating) {
+        response.status(400).send({message: "Frage darf keine leeren Felder enthalten."})
+      } else {
+      // The updated question takes over the ID of the old one
+      let updatedQuestion = {
+        _id: req.params.id,
+        title: title,
+        description: description,
+        answerType: answerType,
+        followUp: followUp,
+        asset: asset,
+        riskRating: riskRating
+      };
+
+
+
+      let db_connect = dbo.getDb();
+
+      // Update questionnaire
       db_connect
           .collection("questionnaires")
-          .updateOne({_id: ObjectId(req.params.id)}, {$push:{"questions": res.ops[0]}}, function (err, res) {
-            if (err) throw err;
-            console.log("1 questionnaire updated");
-            response.json(res);
-          });
-    });
+          .updateOne(
+              {_id: _id, "questions._id": req.params.id},
+              {$set: {"questions.$": updatedQuestion}},
+              function (err, res) {
+                if (err) throw err;
+                console.log("question " + req.params.id + " updated in questionnaire " + _id);
+                response.json(res);
+              }
+          );
   }
-
-});
+    }
+)
 
 // This section will help you get a list of all the questions.
 recordRoutes.route("/question").get(function (req, res) {
@@ -257,9 +317,9 @@ recordRoutes.route("/question/create").post(function (req, response) {
 // This section will help you update a question by id.
 recordRoutes.route("/question/update/:id").post(function (req, response) {
 
-  const {id, title, description, answerType, followUp} = req.body.question;
+  const {id, title, description, answerType, followUp, asset, riskRating} = req.body.question;
 
-  if (!title || !description || !answerType) {
+  if (!title || !description || !answerType || !asset || !riskRating) {
     response.status(400).send({message: "Frage darf keine leeren Felder enthalten."})
   }
 
@@ -270,7 +330,9 @@ recordRoutes.route("/question/update/:id").post(function (req, response) {
       title: title,
       description: description,
       answerType: answerType,
-      followUp: followUp
+      followUp: followUp,
+      asset: asset,
+      riskRating: riskRating
     }
   };
 
@@ -281,8 +343,6 @@ recordRoutes.route("/question/update/:id").post(function (req, response) {
         console.log("1 question updated");
         response.json(res);
       });
-
-
 }
 );
 

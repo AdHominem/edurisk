@@ -10,7 +10,9 @@ export default function UpdateQuestion(props) {
         title: "",
         description: "",
         answerType: "",
-        followUp: ""
+        followUp: "",
+        asset: "",
+        riskRating: ""
     });
 
     // Update the local state with the question to update
@@ -21,8 +23,17 @@ export default function UpdateQuestion(props) {
             description: props.question.description,
             answerType: props.question.answerType,
             followUp: props.question.followUp,
+            asset: props.question.asset,
+            riskRating: props.question.riskRating,
         })
-    }, [props.question._id, props.question.title, props.question.description, props.question.answerType, props.question.followUp])
+    }, [props.question._id,
+        props.question.title,
+        props.question.description,
+        props.question.answerType,
+        props.question.followUp,
+        props.question.asset,
+        props.question.riskRating,
+    ])
 
     console.log(question);
 
@@ -57,6 +68,26 @@ export default function UpdateQuestion(props) {
                     id="description"
                     value={question.description}
                     onChange={(e) => updateQuestion({ description: e.target.value })}
+                />
+            </td>
+            <td>
+                <input
+                    type="text"
+                    placeholder="Asset"
+                    className="form-control"
+                    id="asset"
+                    value={question.asset}
+                    onChange={(e) => updateQuestion({ asset: e.target.value })}
+                />
+            </td>
+            <td>
+                <input
+                    type="text"
+                    placeholder="Risk Rating"
+                    className="form-control"
+                    id="riskRating"
+                    value={question.riskRating}
+                    onChange={(e) => updateQuestion({ riskRating: e.target.value })}
                 />
             </td>
             <td>
